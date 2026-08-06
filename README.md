@@ -4,7 +4,7 @@
 
 Random reshuffling now has an upper bound that dominates stochastic gradient descent at every stable constant step size and every finite horizon. Its matching lower bound was left open. We solve this problem for the exact all-inner average used by the upper bound. The answer is not the published horizon-independent stochastic envelope. If $\alpha=\eta nL\leq 1$, the fixed-step minimax stochastic error is
 
-$$\Theta\!\left(\eta^2 n L\sigma_\star^2\,\left[K^{-1}+\min\\{(\alpha K)^2,\,1\\}\right]\right).$$
+$$\Theta\\!\left(\eta^2 n L\sigma_\star^2\\,\left[K^{-1}+\min\\{(\alpha K)^2,\\,1\\}\right]\right).$$
 
 It decreases, increases, and then plateaus across three horizon regimes. Its minimum occurs at $K\asymp\alpha^{-2/3}$, before the usual mixing scale $\alpha^{-1}$. For $\alpha\geq 1$, the law is $\Theta(\eta\sigma_\star^2)$.
 
@@ -14,13 +14,13 @@ The upper bound follows from an exact finite-population bridge identity and a di
 
 **Theorem (All steps and all horizons).** There are universal constants $c,C>0$ such that for every $n\geq 8$, $K\geq 1$, $L>0$, $D,\sigma\geq 0$, and $0<\eta\leq 1/(6L)$,
 
-$$c\left[\min\!\left\\{LD^2,\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right] \leq \mathcal R_{n,K}(\eta,L,D,\sigma) \leq C\left[\min\!\left\\{LD^2,\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right].$$
+$$c\left[\min\\!\left\\{LD^2,\\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right] \leq \mathcal R_{n,K}(\eta,L,D,\sigma) \leq C\left[\min\\!\left\\{LD^2,\\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right].$$
 
 The lower bound is attained in dimension at most two. For even $n$ it uses balanced signs. For odd $n$ the same construction uses one zero sign. The stochastic term $\mathcal S_{n,K}$ carries the three-phase horizon dependence of the abstract.
 
 **Corollary (Tuned constant step).** Minimizing the theorem over stable constant steps recovers, up to universal constants,
 
-$$\frac{LD^2}{nK}+\min\!\left\\{\frac{\sigma D}{\sqrt{nK}},\ \left(\frac{L\sigma^2 D^4}{nK^2}\right)^{1/3}\right\\}.$$
+$$\frac{LD^2}{nK}+\min\\!\left\\{\frac{\sigma D}{\sqrt{nK}},\ \left(\frac{L\sigma^2 D^4}{nK^2}\right)^{1/3}\right\\}.$$
 
 The transient dip in the fixed-step minimax law does not appear in the tuned envelope: tuning is free to move the trajectory to a different phase.
 
