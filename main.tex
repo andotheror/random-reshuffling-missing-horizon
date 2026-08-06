@@ -1,0 +1,792 @@
+\documentclass{article}
+
+\usepackage{iclr2027_conference,times}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,microtype,url,xcolor,graphicx}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Risk}{\mathfrak R}
+\newcommand{\Stoch}{\mathcal S}
+\newcommand{\1}{\mathbf 1}
+\newcommand{\RR}{\textsf{RR}}
+\newcommand{\SGD}{\textsf{SGD}}
+
+\title{The Missing Horizon in Random Reshuffling}
+\author{\textbf{Pahan Dewasurendra} \\ Johns Hopkins University}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Random reshuffling now has an upper bound that dominates stochastic gradient
+descent at every stable constant step size and every finite horizon. Its
+matching lower bound was left open. We solve this problem for the exact
+all-inner average used by the upper bound. The answer is not the published
+horizon-independent stochastic envelope. If
+$\alpha=\eta nL\leq1$, the fixed-step minimax stochastic error is
+\[
+ \Theta\!\left(\eta^2nL\sigma_\star^2
+ \left[K^{-1}+\min\{(\alpha K)^2,1\}\right]\right).
+\]
+It decreases, increases, and then plateaus across three horizon regimes. Its
+minimum occurs at $K\asymp\alpha^{-2/3}$, before the usual mixing scale
+$\alpha^{-1}$. For $\alpha\geq1$, the law is
+$\Theta(\eta\sigma_\star^2)$. The upper bound follows from an exact
+finite-population bridge identity and a dimension-free control of all state
+memory as a Lipschitz remainder. The lower bound combines a centered
+common-Hessian bridge with a rectifying piecewise quadratic in two dimensions.
+An exact telescoping identity explains why common-Hessian quadratics alone
+miss the eventual floor. Together with the deterministic term, this gives a
+complete minimax characterization for all horizons and all stable constant
+steps. Optimizing the step recovers the best known tuned rate, while the
+fixed-step theorem reveals a nonmonotone transient hidden by that rate.
+\end{abstract}
+
+\section{Introduction}
+
+Random reshuffling processes every component of a finite sum exactly once per
+epoch in a fresh random order. It is the common practical implementation of
+stochastic gradient descent, and it is often faster than sampling with
+replacement. A long line of work has sought to explain this advantage
+\citep{gurbuzbalaban2021why,nagaraj2019sgd,haochen2019random,
+mishchenko2020random,nguyen2021unified,safran2020how,safran2021many}.
+
+The recent result of \citet{liu2026dominates} resolves the upper-bound side for
+smooth convex finite sums. For any stable step $\eta\lesssim1/L$ and any
+number of epochs $K$, it bounds the exact all-inner average by
+\begin{equation}
+ \frac{D^2}{\eta nK}
+ +\min\{\eta,\eta^2nL\}\sigma_\star^2 .       \label{eq:liu-envelope}
+\end{equation}
+This is never slower than the corresponding bound for with-replacement
+\SGD. The same paper identifies the matching lower characterization for all
+steps and horizons as an important open problem. Existing lower bounds cover
+small steps, sufficiently many epochs, and averages of epoch-boundary
+iterates \citep{cha2023tighter}. They do not characterize the all-inner
+output in \eqref{eq:liu-envelope}.
+
+A natural conjecture is that \eqref{eq:liu-envelope} is minimax-sharp for each
+fixed $(\eta,K)$. It is false. All-inner averaging sees a fresh
+without-replacement bridge in every epoch, but the epoch-end state remembers
+earlier bridges. Before curvature has time to rectify these fluctuations,
+the two effects cancel more strongly than the envelope records. The correct
+stochastic law for $\alpha=\eta nL\leq1$ is
+\begin{equation}
+ \eta^2nL\sigma_\star^2
+ \left[\frac1K+\min\{(\alpha K)^2,1\}\right].       \label{eq:small-law}
+\end{equation}
+It has three phases:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+horizon & dominant mechanism & stochastic error \\
+\midrule
+$K\lesssim\alpha^{-2/3}$ & fresh bridge
+  & $\eta^2nL\sigma_\star^2/K$ \\
+$\alpha^{-2/3}\lesssim K\lesssim\alpha^{-1}$ & rectification
+  & $\eta^2nL\sigma_\star^2(\alpha K)^2$ \\
+$K\gtrsim\alpha^{-1}$ & rectified floor
+  & $\eta^2nL\sigma_\star^2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Thus more epochs can temporarily make the fixed-step minimax error worse.
+The minimum is smaller than the eventual floor by $\alpha^{2/3}$.
+
+Our proof isolates the two mechanisms. For the upper bound, freeze every
+component gradient at a minimizer. The resulting permutation prefixes reset
+to zero after each epoch and have an exact bridge-area variance of
+$\eta^2(n+1)\sigma_\star^2/12$. Every nonlinear and state-memory effect is a
+single Lipschitz remainder. A prefix-sum operator controls this remainder
+when $\alpha K$ is small, and the general bound of \citet{liu2026dominates}
+covers the remaining horizons.
+
+For the lower bound, a centered common-Hessian quadratic generates the
+$1/K$ bridge term. It also satisfies an exact identity that makes its
+all-inner average proportional to its final state, so its error eventually
+decays rather than reaching a floor. A piecewise quadratic adapted from the
+one-epoch construction of \citet{cha2023tighter} rectifies the bridge into a
+mean displacement of order
+$\eta\sigma_\star\sqrt n\min\{\alpha K,1\}$. Choosing the larger of these
+two gadgets and adding one deterministic coordinate gives a matching
+two-dimensional instance. Curvature rescaling handles large nominal steps
+without padding or inactive-component arguments.
+
+\paragraph{Contributions.}
+We give the first fixed-step minimax law for the all-inner output of random
+reshuffling at every finite horizon and every stable constant step. The law
+answers the lower-bound question in \citet{liu2026dominates}, but also shows
+why its upper envelope is not pointwise tight. The proof introduces a reset
+bridge decomposition for the all-inner transient, identifies an exact
+quadratic cancellation, and transfers the known rectification gadget from
+epoch endpoints to all-inner averaging.
+
+\section{Setup}
+
+Let
+\[
+ f(x)=\frac1n\sum_{i=1}^n f_i(x),
+ \qquad f_i:\R^d\to\R,
+\]
+where every component is convex and $L$-smooth. Let $x^\star$ minimize $f$
+and define
+\[
+ \sigma_\star^2=\frac1n\sum_{i=1}^n
+       \|\nabla f_i(x^\star)\|^2.
+\]
+At epoch $k$, random reshuffling draws an independent uniform permutation
+$\pi_k$ and performs
+\begin{equation}
+ x_{k,j+1}=x_{k,j}-\eta\nabla f_{\pi_k(j+1)}(x_{k,j}),
+ \quad j=0,\ldots,n-1,
+ \quad x_{k+1,0}=x_{k,n}.                 \label{eq:rr}
+\end{equation}
+We study the pre-update all-inner average
+\begin{equation}
+ \bar x_K=\frac1{nK}\sum_{k=0}^{K-1}\sum_{j=0}^{n-1}x_{k,j}.       \label{eq:average}
+\end{equation}
+For a constant step, this is exactly the weighted output in Theorem~1 of
+\citet{liu2026dominates}.
+
+For $D,\sigma\geq0$, define the fixed-step minimax risk
+\begin{equation}
+ \Risk_{n,K}(\eta,L,D,\sigma)
+ =\sup \E[f(\bar x_K)-f(x^\star)],                       \label{eq:risk}
+\end{equation}
+where the supremum ranges over all dimensions, all finite sums satisfying the
+assumptions above, and all initial points with
+$\|x_{0,0}-x^\star\|\leq D$ and $\sigma_\star\leq\sigma$.
+The lower-bound instance may depend on $(\eta,K)$, as usual in a minimax
+statement.
+
+Set
+\begin{equation}
+ \alpha=\eta nL,
+ \qquad \delta=\min\{\alpha,1\},
+ \qquad
+ \Stoch_{n,K}=\eta\sigma^2\delta
+ \left[\frac1K+\min\{(\delta K)^2,1\}\right].            \label{eq:S}
+\end{equation}
+For $\alpha\geq1$, the bracket lies in $[1,2]$, so
+$\Stoch_{n,K}\asymp\eta\sigma^2$.
+
+\section{The finite-horizon minimax law}
+
+\begin{theorem}[All steps and all horizons]\label{thm:main}
+There are universal constants $c,C>0$ such that for every $n\geq8$,
+$K\geq1$, $L>0$, $D,\sigma\geq0$, and $0<\eta\leq1/(6L)$,
+\begin{align}
+ c\left[
+  \min\left\{LD^2,\frac{D^2}{\eta nK}\right\}
+  +\Stoch_{n,K}\right]
+ &\leq \Risk_{n,K}(\eta,L,D,\sigma) \nonumber\\
+ &\leq C\left[
+  \min\left\{LD^2,\frac{D^2}{\eta nK}\right\}
+  +\Stoch_{n,K}\right].                         \label{eq:main}
+\end{align}
+The lower bound is attained in dimension at most two. For even $n$ it uses
+balanced signs. For odd $n$ the same construction uses one zero sign.
+\end{theorem}
+
+The theorem separates a deterministic optimization term from a stochastic
+reshuffling term. It does not assert that every instance follows the
+three-phase law. In fact, the exact quadratic identity in
+Section~\ref{sec:lower} gives an instance whose error vanishes after the
+bridge phase. The statement is a worst-case characterization at each fixed
+step and horizon.
+
+The result also explains why the tuned rate in \citet{liu2026dominates} is
+correct despite the slack in \eqref{eq:liu-envelope}. Minimizing
+\eqref{eq:main} over stable constant steps gives, up to universal constants,
+\begin{equation}
+ \frac{LD^2}{nK}
+ +\min\left\{
+   \frac{\sigma D}{\sqrt{nK}},
+   \left(\frac{L\sigma^2D^4}{nK^2}\right)^{1/3}
+ \right\}.                                             \label{eq:tuned}
+\end{equation}
+The transient dip concerns fixed steps. Tuning can move the trajectory to a
+different phase.
+
+\section{Upper bound: a reset bridge and one remainder}
+\label{sec:upper}
+
+Translate $x^\star$ to zero and write
+\[
+ g_i=\nabla f_i(0),
+ \qquad h_i(x)=\nabla f_i(x)-g_i.
+\]
+Then $\sum_i g_i=0$ and $\|h_i(x)\|\leq L\|x\|$. First run
+\eqref{eq:rr} from zero and call this trajectory $z$. Flatten its $N=nK$
+pre-update iterates into $z_0,\ldots,z_{N-1}$. Inside each epoch define the
+reset bridge
+\begin{equation}
+ Y_{k,j}=-\eta\sum_{r=1}^j g_{\pi_k(r)},
+ \qquad j=0,\ldots,n-1.                              \label{eq:bridge}
+\end{equation}
+Completed epochs contribute zero to the frozen gradients. Therefore, after
+flattening $Y_{k,j}$ into $Y_t$,
+\begin{equation}
+ z_t=Y_t+R_t,
+ \qquad
+ R_t=-\eta\sum_{s<t}h_{i_s}(z_s).                    \label{eq:remainder}
+\end{equation}
+
+The bridge has exact finite-population moments.
+\begin{lemma}[Reset bridge]\label{lem:bridge}
+For $j=0,\ldots,n-1$,
+\begin{align}
+ \E\|Y_{k,j}\|^2
+ &=\eta^2\sigma_\star^2\frac{j(n-j)}{n-1},            \label{eq:prefix-moment}\\
+ \E\left\|\frac1N\sum_{t=0}^{N-1}Y_t\right\|^2
+ &=\frac{\eta^2(n+1)}{12K}\sigma_\star^2.            \label{eq:area-moment}
+\end{align}
+Also,
+\begin{equation}
+ \frac1N\sum_{t=0}^{N-1}\E\|Y_t\|^2
+ =\frac{\eta^2(n+1)}6\sigma_\star^2.                 \label{eq:path-moment}
+\end{equation}
+\end{lemma}
+
+The $1/K$ term in \eqref{eq:S} is exactly the variance reduction from
+averaging the independent centered bridge areas in
+\eqref{eq:area-moment}. The second term comes from controlling $R$.
+
+\begin{lemma}[Short-horizon memory]\label{lem:memory}
+Let $\theta=\eta LN=\alpha K$. If $\theta\leq1/2$, then
+\begin{equation}
+ \E\|\bar z_K\|^2
+ \leq C_0\eta^2n\sigma_\star^2
+ \left(\frac1K+\theta^2\right)                       \label{eq:short-distance}
+\end{equation}
+for a numerical constant $C_0$.
+\end{lemma}
+
+The proof is a one-line operator estimate. Let $P$ be the strictly lower
+triangular prefix-sum matrix on $N$ coordinates. With
+$a_t=\|z_t\|$ and $b_t=\|Y_t\|$, \eqref{eq:remainder} gives
+$a\leq b+\eta LPa$. Since $\|P\|_{2\to2}\leq N$,
+\[
+ \|a\|_2\leq2\|b\|_2,
+ \qquad
+ \|R\|_2\leq2\theta\|b\|_2.
+\]
+Jensen's inequality, \eqref{eq:area-moment}, and
+\eqref{eq:path-moment} prove \eqref{eq:short-distance}. This argument uses
+no Hessians, commutativity, or dimension restriction.
+
+Smoothness of $f$ now gives
+\begin{equation}
+ \E[f(\bar z_K)-f^\star]
+ \leq C\eta^2nL\sigma_\star^2
+ \left(\frac1K+(\alpha K)^2\right),
+ \qquad \alpha K\leq\tfrac12.                        \label{eq:short-function}
+\end{equation}
+To restore an arbitrary initialization, couple $x$ and $z$ with the same
+permutations. Every component gradient map is nonexpansive when
+$\eta\leq2/L$, so $\|\bar x_K-\bar z_K\|\leq D$. Co-coercivity and
+smoothness imply
+\begin{equation}
+ f(\bar x_K)-f^\star
+ \leq2\bigl(f(\bar z_K)-f^\star\bigr)+LD^2.           \label{eq:couple}
+\end{equation}
+When $\alpha K\leq1/2$, the deterministic minimum in
+\eqref{eq:main} equals $LD^2$, so this proves the desired short-horizon
+bound.
+
+For $\alpha K>1/2$, Theorem~1 of \citet{liu2026dominates} gives
+\begin{equation}
+ \E[f(\bar x_K)-f^\star]
+ \leq \frac{6D^2}{\eta nK}
+ +51\eta\sigma_\star^2\min\{\alpha,1\}.               \label{eq:liu}
+\end{equation}
+If $\alpha\leq1$, the bracket in \eqref{eq:S} is at least $1/4$ in this
+region. If $\alpha\geq1$, it is at least one. The first term in
+\eqref{eq:liu} is within a universal factor of the capped deterministic term.
+This completes the upper bound.
+
+\section{Lower bound: cancellation and rectification}
+\label{sec:lower}
+
+The deterministic term follows from identical components
+$f_i(w)=\lambda w^2/2$, initialized at $w_0=D$, with
+$\lambda=\min\{L,(\eta nK)^{-1}\}$. Their geometric all-inner average is a
+constant fraction of $D$, which yields
+\begin{equation}
+ f(\bar w_K)-f^\star
+ \geq c\min\left\{LD^2,\frac{D^2}{\eta nK}\right\}.   \label{eq:det-lower}
+\end{equation}
+
+It remains to obtain \eqref{eq:S}. We first expose the fresh bridge with a
+centered common-Hessian quadratic. Let $s_i$ be balanced signs and set
+\begin{equation}
+ Q_i(u)=\frac\ell2u^2+a s_i u,
+ \qquad u_0=0.                                        \label{eq:centered}
+\end{equation}
+For odd $n$, one sign is zero. The scale $a$ is adjusted so that
+$n^{-1}\sum_i a^2s_i^2=\sigma^2$. Put $q=1-\eta\ell$ and $r=q^n$. Summing
+all $nK$ update equations and using $\sum_i s_i=0$ gives the pathwise identity
+\begin{equation}
+ \boxed{\quad \bar u_K=-\frac{u_{K,0}}{\eta\ell nK}.\quad}             \label{eq:telescoping}
+\end{equation}
+This exact cancellation is special to all-inner averaging.
+
+If
+\[
+ V_n(q)=\sum_{j=1}^n\left(q^{n-j}-\frac1n
+             \sum_{r=1}^nq^{n-r}\right)^2,
+\]
+finite-population covariance gives
+\begin{equation}
+ \E[Q(\bar u_K)-Q(0)]
+ =\frac{\sigma^2V_n(q)}{2\ell n(n-1)K^2}
+   \frac{1-r^{2K}}{1-r^2}                              \label{eq:exact-quadratic}
+\end{equation}
+for every $n$, where $Q=n^{-1}\sum_iQ_i=\ell u^2/2$.
+When $\beta=\eta n\ell$ and $\beta K$ are small,
+$V_n(q)\asymp(\eta\ell)^2n^3$ and the geometric factor is
+$\asymp K$. Hence
+\begin{equation}
+ \E[Q(\bar u_K)-Q(0)]
+ \geq c\frac{\eta^2n\ell\sigma^2}{K}.                \label{eq:bridge-lower}
+\end{equation}
+For $K\gg1/\beta$, \eqref{eq:exact-quadratic} instead decays as
+$K^{-2}$. Common-Hessian quadratics cannot create the floor.
+
+The floor comes from curvature rectification. Consider
+\begin{equation}
+ r_i(v)=\frac12\left(
+   \ell\1_{\{v<0\}}+\frac\ell{2415}\1_{\{v\geq0\}}
+ \right)v^2+a s_i v,
+ \qquad v_0=0.                                        \label{eq:rectifier}
+\end{equation}
+Every component is convex and $\ell$-smooth. The average objective is
+minimized at zero and is $\ell/2415$-strongly convex.
+
+\begin{lemma}[Finite-horizon rectification]\label{lem:rectifier}
+There are universal constants $b,c_1,c_2>0$ such that, whenever
+$\beta=\eta n\ell\leq b$, random reshuffling on
+\eqref{eq:rectifier} satisfies, with
+$B=\eta a\sqrt n$,
+\begin{equation}
+ m_{k+1}\geq(1-c_1\beta)m_k+c_2\beta B,
+ \qquad m_k=\E[v_{k,0}],\quad m_0=0.                  \label{eq:recurrence}
+\end{equation}
+Consequently, if $K\geq\beta^{-2/3}$, then
+\begin{equation}
+ \E[r(\bar v_K)-r(0)]
+ \geq c\eta^2n\ell a^2\min\{(\beta K)^2,1\}.        \label{eq:rect-lower}
+\end{equation}
+The statement holds for balanced signs when $n$ is even and for balanced
+signs plus one zero when $n$ is odd.
+\end{lemma}
+
+The recurrence is the one-epoch rectification estimate proved in
+Appendix~B of \citet{cha2023tighter}. The new all-inner transfer is short.
+Couple \eqref{eq:rectifier} to the common-curvature $\ell$ quadratic under
+the same permutation. Monotonicity gives a pathwise lower comparison.
+Conditioned on an epoch start,
+\[
+ \E[v_{k,j}\mid v_{k,0}]\geq(1-\eta\ell)^jv_{k,0}.
+\]
+Solving \eqref{eq:recurrence} gives
+$m_k\geq cB\min\{\beta k,1\}$. Averaging over the starts of the first $K$
+epochs, and using $K\geq\beta^{-2/3}>1$, yields
+$\E\bar v_K\geq cB\min\{\beta K,1\}$. Strong convexity and Jensen's
+inequality prove \eqref{eq:rect-lower}. Appendix~\ref{app:rectifier}
+records the constants and the odd-$n$ reduction.
+
+To cover every nominal step, choose an effective curvature
+\begin{equation}
+ \ell=\frac{\beta}{\eta n},
+ \qquad \beta=\min\{\alpha,b\}.                       \label{eq:rescale}
+\end{equation}
+Then $\ell\leq L$. Use \eqref{eq:centered} when
+$K\lesssim\beta^{-2/3}$ and \eqref{eq:rectifier} otherwise. The two bounds
+give
+\[
+ c\eta\sigma^2\beta
+ \left[\frac1K+\min\{(\beta K)^2,1\}\right].
+\]
+Since $\beta/\delta\geq b$ and, for $0<\beta\leq\delta\leq1$,
+\[
+ \frac1K+\min\{(\beta K)^2,1\}
+ \geq\left(\frac\beta\delta\right)^2
+ \left[\frac1K+\min\{(\delta K)^2,1\}\right],
+\]
+this is a universal constant fraction of \eqref{eq:S}. Finally, take the
+orthogonal direct sum of the deterministic coordinate and the selected
+stochastic coordinate. Block-diagonal smoothness remains at most $L$, the
+initial distance is exactly $D$, and the gradient variance at the minimizer is
+exactly $\sigma^2$. This proves the lower bound in Theorem~\ref{thm:main}.
+
+\section{Relation to prior reshuffling theory}
+
+Classical analyses established improved rates for random reshuffling under
+small-step, large-epoch, strong-convexity, or bounded-gradient conditions
+\citep{gurbuzbalaban2021why,nagaraj2019sgd,haochen2019random,
+mishchenko2020random,nguyen2021unified}. Lower bounds for final iterates and
+quadratic problems reveal condition-number and epoch transitions
+\citep{safran2020how,safran2021many}. Last-iterate and primal-dual analyses
+have since sharpened the output guarantees
+\citep{liu2024last,cai2024tighter}.
+
+The closest lower bound is \citet{cha2023tighter}. It treats arbitrary
+nonnegative combinations of epoch-boundary iterates. Its convex corollary
+uses a small step and a sufficiently large horizon. We use its one-epoch
+piecewise-quadratic estimate, but our output contains every inner iterate and
+our result tracks every finite horizon. The bridge term and the transient
+dip have no analogue in an endpoint-only average.
+
+The closest upper bound is \citet{liu2026dominates}. It introduced the exact
+all-inner output in \eqref{eq:average}, proved \eqref{eq:liu} at all stable
+steps and horizons, and explicitly left the corresponding complete lower
+characterization open. Our theorem closes that direction. It also shows
+that the stochastic part of \eqref{eq:liu} is loose by an unbounded factor at
+$K\asymp\alpha^{-2/3}$ as $\alpha\to0$.
+
+Constant-step stationary-distribution and bias expansions study a different
+asymptotic object, usually epoch endpoints under strong monotonicity or
+additional structure \citep{emmanouilidis2026shuffling}. They are
+complementary to the finite-horizon convex minimax law here.
+
+\section{Discussion}
+
+The nonmonotonicity is an output effect, not a claim that running a fixed
+instance longer must hurt. Minimax instances can depend on the horizon. The
+law says which mechanism an adversary can activate at each horizon. It also
+clarifies the role of state memory. Memory creates no fourth minimax scale.
+During the transient it is contained by the Lipschitz remainder, while in the
+common-Hessian lower gadget it cancels the bridge exactly.
+
+Our theorem uses the maximum component smoothness $L$. A sharper law that
+separates average and maximum smoothness, as in the nonuniform upper theorem
+of \citet{liu2026dominates}, remains open. The result also concerns the
+specific all-inner average. Other output rules can have different horizon
+laws.
+
+\section*{Reproducibility statement}
+All assumptions and complete proofs are included in the manuscript. The
+supplementary verification script checks the exact quadratic identity by
+permutation enumeration and Monte Carlo simulation, including the pre-update
+indexing convention. No external data or specialized hardware is required.
+
+\section*{AI use statement}
+Generative AI tools were used for exploratory theorem generation, literature
+search, adversarial proof auditing, numerical identity checks, and language
+editing. The authors rederived every displayed result, read the cited primary
+papers, ran the verification artifact, and checked the stated assumptions and
+boundary cases. The authors take full responsibility for the claims and the
+final manuscript.
+
+\bibliography{references}
+\bibliographystyle{iclr2027_conference}
+
+\appendix
+
+\section{Finite-population identities}\label{app:bridge}
+
+We prove Lemma~\ref{lem:bridge}. Let $G_1,\ldots,G_n\in\R^d$ satisfy
+$\sum_iG_i=0$ and $n^{-1}\sum_i\|G_i\|^2=\sigma_G^2$. If $\pi$ is uniform,
+then
+\[
+ \E\langle G_{\pi(r)},G_{\pi(s)}\rangle
+ =\begin{cases}
+ \sigma_G^2,&r=s,\\
+ -\sigma_G^2/(n-1),&r\neq s.
+ \end{cases}
+\]
+It follows directly that
+\begin{equation}
+ \E\left\|\sum_{r=1}^jG_{\pi(r)}\right\|^2
+ =\sigma_G^2\frac{j(n-j)}{n-1}.                       \label{eq:finite-prefix}
+\end{equation}
+Taking $G_i=g_i$ proves \eqref{eq:prefix-moment}. Summing
+\eqref{eq:finite-prefix} over $j=0,\ldots,n-1$ and using
+\[
+ \sum_{j=0}^{n-1}j(n-j)=\frac{n(n-1)(n+1)}6
+\]
+proves \eqref{eq:path-moment}.
+
+For the area of one epoch,
+\[
+ A_\pi=\frac1n\sum_{j=0}^{n-1}Y_j
+ =-\frac\eta n\sum_{r=1}^{n-1}(n-r)g_{\pi(r)}.
+\]
+For arbitrary scalar weights $w_r$, the covariance above gives
+\begin{equation}
+ \E\left\|\sum_{r=1}^nw_rg_{\pi(r)}\right\|^2
+ =\frac{n\sigma_\star^2}{n-1}
+   \sum_{r=1}^n(w_r-\bar w)^2.                         \label{eq:weighted-fp}
+\end{equation}
+With $w_r=n-r$ and
+$\sum_r(w_r-\bar w)^2=n(n^2-1)/12$, we obtain
+\[
+ \E\|A_\pi\|^2=\frac{\eta^2(n+1)}{12}\sigma_\star^2.
+\]
+The epoch areas are independent and centered. Their average has variance
+$1/K$ times this quantity, proving \eqref{eq:area-moment}.
+
+\section{Complete upper-bound proof}\label{app:upper}
+
+We first prove Lemma~\ref{lem:memory}. Index the $N=nK$ pre-update iterates
+from zero. Let $P\in\R^{N\times N}$ have entries $P_{ts}=1$ if $s<t$ and
+zero otherwise. Equation~\eqref{eq:remainder} and
+$\|h_i(z)\|\leq L\|z\|$ imply componentwise
+\[
+ a\leq b+\eta LPa,
+ \qquad a_t=\|z_t\|,
+ \quad b_t=\|Y_t\|.
+\]
+Since $\|P\|_{2\to2}\leq\|P\|_{\mathrm F}<N$ and
+$\theta=\eta LN\leq1/2$,
+\begin{equation}
+ \|a\|_2\leq\|b\|_2+\theta\|a\|_2
+ \leq2\|b\|_2.                                      \label{eq:a-b}
+\end{equation}
+Likewise, the sequence of remainder norms satisfies
+\begin{equation}
+ \|R\|_2\leq\eta L\|Pa\|_2
+ \leq2\theta\|b\|_2.                                \label{eq:R-b}
+\end{equation}
+Jensen's inequality gives
+\[
+ \E\|\bar R\|^2
+ \leq\frac1N\E\|R\|_2^2
+ \leq4\theta^2\frac1N\E\|b\|_2^2
+ =\frac{2(n+1)}{3}\eta^2\theta^2\sigma_\star^2.
+\]
+Together with \eqref{eq:area-moment} and
+$\|u+v\|^2\leq2\|u\|^2+2\|v\|^2$, this proves
+\eqref{eq:short-distance} with, for example, $C_0=4$ for $n\geq2$.
+
+For completeness, we justify the initialization coupling. If $T_i(x)=
+x-\eta\nabla f_i(x)$, co-coercivity gives
+\begin{align*}
+ \|T_i(x)-T_i(y)\|^2
+ &\leq\|x-y\|^2
+ -(2\eta/L-\eta^2)
+   \|\nabla f_i(x)-\nabla f_i(y)\|^2.
+\end{align*}
+Thus $T_i$ is nonexpansive for $\eta\leq2/L$. Coupled trajectories remain
+within $D$, and so do their averages. For any $u,v$, smoothness gives
+\[
+ f(u)-f^\star
+ \leq f(v)-f^\star+\langle\nabla f(v),u-v\rangle
+       +\frac L2\|u-v\|^2.
+\]
+The standard inequality $\|\nabla f(v)\|^2\leq2L(f(v)-f^\star)$ and Young's
+inequality yield \eqref{eq:couple}.
+
+If $\theta\leq1/2$, then
+$D^2/(\eta nK)=LD^2/\theta\geq2LD^2$, so the capped deterministic term is
+$LD^2$. Equations \eqref{eq:short-function} and \eqref{eq:couple} give the
+upper half of \eqref{eq:main} in this region.
+
+If $\theta>1/2$, apply \eqref{eq:liu}. When $\theta\in(1/2,1)$,
+$D^2/(\eta nK)<2LD^2$, and when $\theta\geq1$ it is the smaller deterministic
+term. Hence the first term in \eqref{eq:liu} is at most twelve times the
+capped term. If $\alpha\leq1$, then
+\[
+ K^{-1}+\min\{(\alpha K)^2,1\}\geq1/4.
+\]
+If $\alpha\geq1$, then $\delta=1$ and the same bracket is at least one. This
+absorbs the stochastic term in \eqref{eq:liu} and completes the proof.
+
+\section{Exact common-Hessian cancellation}\label{app:quadratic}
+
+We derive \eqref{eq:exact-quadratic} and its lower consequence. First assume
+$n$ is even and $s_i\in\{-1,1\}$ are balanced. For one epoch,
+\[
+ u_{k+1,0}=r u_{k,0}+\xi_k,
+ \qquad
+ \xi_k=-\eta a\sum_{j=1}^nq^{n-j}s_{\pi_k(j)}.
+\]
+The innovations are independent and centered. Equation
+\eqref{eq:weighted-fp} gives
+\[
+ \E\xi_k^2=\frac{\eta^2na^2}{n-1}V_n(q).
+\]
+Starting from zero,
+\[
+ \E u_{K,0}^2
+ =\frac{\eta^2na^2}{n-1}V_n(q)
+   \sum_{k=0}^{K-1}r^{2k}.
+\]
+The sum of the $nK$ scalar update equations is
+\[
+ u_{K,0}-u_{0,0}
+ =-\eta\ell\sum_{k,j}u_{k,j}
+   -\eta a\sum_{k,j}s_{\pi_k(j)}.
+\]
+The last term vanishes epoch by epoch. This proves
+\eqref{eq:telescoping}. Substitution into
+$Q(\bar u_K)-Q(0)=\ell\bar u_K^2/2$ proves
+\eqref{eq:exact-quadratic}.
+
+We record explicit bounds. If $\beta=\eta n\ell\leq1/4$, then
+$q^{n-1}\geq1-\beta\geq3/4$. The pairwise variance identity gives
+\begin{align*}
+ V_n(q)
+ &=\frac1{2n}\sum_{p,r=0}^{n-1}(q^p-q^r)^2\\
+ &\geq\frac{q^{2n-2}(\eta\ell)^2}{2n}
+        \sum_{p,r=0}^{n-1}(p-r)^2
+ \geq c(\eta\ell)^2n^3.                              \label{eq:V-lower}
+\end{align*}
+If also $\beta K\leq1/4$, then $r^{2k}\geq(1-\beta)^{2K}\geq c$ for
+$k<K$, so $\sum_{k<K}r^{2k}\geq cK$. Equation
+\eqref{eq:exact-quadratic} now proves \eqref{eq:bridge-lower}.
+
+For odd $n$, choose $(n-1)/2$ signs of each type and one zero. Put
+$\rho_n=n^{-1}\sum_i s_i^2=(n-1)/n$ and $a=\sigma/\sqrt{\rho_n}$.
+The weighted covariance formula has $a^2\rho_n=\sigma^2$ in place of $a^2$,
+so the same calculation and constants apply.
+
+\section{The rectification lemma}\label{app:rectifier}
+
+We give the promised reduction to the proved one-epoch estimates of
+\citet{cha2023tighter}. Their Appendix~B considers exactly
+\eqref{eq:rectifier} for even $n$, with $a$ denoted by $\nu$. Lemmas B.2--B.4
+and the calculation following them show, for
+$\beta\leq1/161$, that an epoch starting from a fixed $v\geq0$ satisfies
+\begin{equation}
+ \E[v^+\mid v]
+ \geq(1-3\beta/4)v+\frac{\eta^2\ell a n^{3/2}}{18000},
+                                                               \label{eq:cha-pos}
+\end{equation}
+while a negative start satisfies
+\begin{equation}
+ \E[v^+\mid v]\geq(1-160\beta/161)v.                  \label{eq:cha-neg}
+\end{equation}
+They also prove that, from a nonnegative initialization, every epoch start is
+nonnegative with probability at least $1/2$. Since $v<0$ reverses the
+comparison between the two contraction coefficients, conditioning on the
+sign of the start gives
+\begin{equation}
+ m_{k+1}\geq(1-3\beta/4)m_k+\frac{\beta B}{36000},
+ \qquad B=\eta a\sqrt n.                              \label{eq:m-exact}
+\end{equation}
+This is \eqref{eq:recurrence}. Taking a smaller universal $b$ if needed,
+iteration from $m_0=0$ yields
+\begin{equation}
+ m_k\geq cB\min\{\beta k,1\}.                         \label{eq:m-solve}
+\end{equation}
+
+We next transfer endpoint drift to the all-inner output. Let $\widetilde v_j$
+be the trajectory with the same linear signs and common curvature $\ell$.
+For $\eta\ell\leq1$, both component update maps are nondecreasing and
+\[
+ T_i^{\mathrm{rect}}(x)\geq T_i^{\mathrm{quad}}(x)
+ \quad\text{for every }x.
+\]
+Induction gives $v_j\geq\widetilde v_j$ pathwise. Conditional on the epoch
+start, uniform permutation marginals and balanced signs give
+\[
+ \E[\widetilde v_j\mid v_0]=(1-\eta\ell)^jv_0.
+\]
+Therefore
+\[
+ \E v_{k,j}\geq(1-\eta\ell)^jm_k\geq(1-\beta)m_k.
+\]
+If $K\geq\beta^{-2/3}$ and $b$ is small, then $K\geq2$. Averaging
+\eqref{eq:m-solve} over $k=0,\ldots,K-1$ gives
+\begin{equation}
+ \E\bar v_K\geq cB\min\{\beta K,1\}.                 \label{eq:mean-all}
+\end{equation}
+The average objective in \eqref{eq:rectifier} is
+$\ell/2415$-strongly convex and minimized at zero. Jensen's inequality gives
+\[
+ \E[r(\bar v_K)-r(0)]
+ \geq\frac\ell{4830}(\E\bar v_K)^2,
+\]
+which proves \eqref{eq:rect-lower}.
+
+For odd $n$, use balanced $+1$ and $-1$ signs and one zero. We explain why
+the cited one-epoch proof still applies. If $S_j$ is a prefix sum of a
+uniform permutation of these signs, sampling without replacement gives, for
+$j\leq n/2$,
+\[
+ \E S_j^2\geq c j,
+ \qquad \E S_j^4\leq Cj^2.
+\]
+H\"older's inequality and Paley--Zygmund imply
+$\E|S_j|\geq c\sqrt j$ and $\Pr(S_j>0)=\Pr(S_j<0)\geq c$.
+These are the only sign-distribution inputs in Lemmas B.2--B.4 of
+\citet{cha2023tighter}. Repeating their displayed inequalities with the new
+universal constants proves \eqref{eq:cha-pos}--\eqref{eq:cha-neg} up to
+constant factors. Scaling $a$ by $\sqrt{n/(n-1)}$ preserves
+$n^{-1}\sum_i a^2s_i^2=\sigma^2$ exactly.
+
+\section{Completing the lower bound}\label{app:lower}
+
+Choose a universal $b>0$ small enough that $b\leq1/161$ and
+$b^{1/3}\leq1/4$. Let $\beta=\min\{\alpha,b\}$ and choose $\ell$ as in
+\eqref{eq:rescale}. Then $\ell\leq L$ and $\eta n\ell=\beta$.
+
+If $K\leq\beta^{-2/3}$, then $\beta K\leq\beta^{1/3}\leq1/4$ and
+Appendix~\ref{app:quadratic} gives
+\[
+ \E[Q(\bar u_K)-Q(0)]
+ \geq c\eta^2n\ell\sigma^2/K.
+\]
+In this regime, $(\beta K)^2\leq1/K$, so this is a constant fraction of
+\[
+ \eta^2n\ell\sigma^2
+ \left[K^{-1}+\min\{(\beta K)^2,1\}\right].
+\]
+If $K\geq\beta^{-2/3}$, Lemma~\ref{lem:rectifier} applies and
+$K^{-1}\leq(\beta K)^2$. Its lower bound is again a constant fraction of
+the same display. Thus one of the two one-dimensional stochastic gadgets
+always supplies
+\begin{equation}
+ c\eta\sigma^2\beta
+ \left[K^{-1}+\min\{(\beta K)^2,1\}\right].           \label{eq:beta-law}
+\end{equation}
+
+Let $\delta=\min\{\alpha,1\}$. We have
+$\beta/\delta\geq b$. For $r=\beta/\delta\leq1$,
+\[
+ \min\{(\beta K)^2,1\}
+ \geq r^2\min\{(\delta K)^2,1\},
+ \qquad K^{-1}\geq r^2K^{-1}.
+\]
+Hence \eqref{eq:beta-law} is at least $cb^3\Stoch_{n,K}$.
+
+Finally, verify \eqref{eq:det-lower}. Put $T=nK$ and
+$\lambda=\min\{L,(\eta T)^{-1}\}$. The pre-update iterates are
+$w_t=(1-\eta\lambda)^tD$, and
+\[
+ \bar w_K
+ =D\frac{1-(1-\eta\lambda)^T}{T\eta\lambda}.
+\]
+If $\eta LT\leq1$, then $\lambda=L$ and $\bar w_K\geq cD$. If
+$\eta LT\geq1$, then $\lambda=(\eta T)^{-1}$ and again
+$\bar w_K\geq cD$. Multiplying by $\lambda/2$ proves
+\eqref{eq:det-lower}. The orthogonal direct sum described in the main text
+finishes the proof of Theorem~\ref{thm:main}.
+
+\section{Optimizing the step}\label{app:tuning}
+
+We briefly derive \eqref{eq:tuned}. A stable step of order $1/L$ contributes
+the baseline $LD^2/(nK)$. In the regime $\alpha\geq1$, balancing
+$D^2/(\eta nK)$ with $\eta\sigma^2$ gives
+$\sigma D/\sqrt{nK}$. In the small-step regime after rectification has
+saturated, balancing $D^2/(\eta nK)$ with
+$\eta^2nL\sigma^2$ gives
+$(L\sigma^2D^4/(nK^2))^{1/3}$. Taking the better admissible balance and the
+stability boundary yields \eqref{eq:tuned}. The lower half of
+Theorem~\ref{thm:main} shows that the same expression is minimax-sharp for
+constant-step random reshuffling.
+
+\end{document}
