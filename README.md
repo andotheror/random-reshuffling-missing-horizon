@@ -16,7 +16,7 @@ The upper bound follows from an exact finite-population bridge identity and a di
 
 $$c\left[\min\!\left\\{LD^2,\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right] \leq \mathcal R_{n,K}(\eta,L,D,\sigma) \leq C\left[\min\!\left\\{LD^2,\,\frac{D^2}{\eta nK}\right\\}+\mathcal S_{n,K}\right].$$
 
-The lower bound is attained in dimension at most two. For even $n$ it uses balanced signs; for odd $n$ the same construction uses one zero sign. The stochastic term $\mathcal S_{n,K}$ carries the three-phase horizon dependence of the abstract.
+The lower bound is attained in dimension at most two. For even $n$ it uses balanced signs. For odd $n$ the same construction uses one zero sign. The stochastic term $\mathcal S_{n,K}$ carries the three-phase horizon dependence of the abstract.
 
 **Corollary (Tuned constant step).** Minimizing the theorem over stable constant steps recovers, up to universal constants,
 
@@ -24,7 +24,7 @@ $$\frac{LD^2}{nK}+\min\!\left\\{\frac{\sigma D}{\sqrt{nK}},\ \left(\frac{L\sigma
 
 The transient dip in the fixed-step minimax law does not appear in the tuned envelope: tuning is free to move the trajectory to a different phase.
 
-**Upper bound method.** A reset bridge identity plus a dimension-free Lipschitz remainder controls all state memory. The bridge yields the exact leading stochastic constant; the remainder is bounded independently of dimension by a single one-dimensional argument.
+**Upper bound method.** A reset bridge identity plus a dimension-free Lipschitz remainder controls all state memory. The bridge yields the exact leading stochastic constant. The remainder is bounded independently of dimension by a single one-dimensional argument.
 
 **Lower bound method.** A centered common-Hessian bridge captures the first two phases. A rectifying piecewise quadratic in two dimensions produces the plateau. A telescoping identity for common-Hessian quadratics shows why they cannot reach the floor alone. The construction uses balanced-sign labels in even $n$ and one zero-sign label in odd $n$.
 
